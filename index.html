@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancient China Study Guide</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f6fa; color: #222; min-height: 100vh; }
+
+.header { background: #1F3864; color: white; padding: 16px 20px; }
+.header h1 { font-size: 19px; font-weight: 700; }
+.header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.prog-wrap { background: rgba(255,255,255,0.2); border-radius: 6px; height: 7px; margin-top: 10px; }
+.prog-fill { background: #4CAF82; height: 7px; border-radius: 6px; transition: width 0.3s; }
+.prog-lbl { font-size: 11px; opacity: 0.65; margin-top: 4px; }
+
+.mode-bar { background: #16305a; display: flex; overflow-x: auto; border-bottom: 2px solid #0d2245; }
+.mode-btn { flex: 1; min-width: 90px; padding: 10px 8px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; letter-spacing: 0.2px; }
+.mode-btn.active { color: white; border-bottom-color: #4CAF82; background: rgba(255,255,255,0.07); }
+.mode-btn:hover:not(.active) { color: rgba(255,255,255,0.85); }
+
+.sec-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e0e4ee; padding: 0 10px; gap: 2px; }
+.sec-tab { padding: 9px 11px; font-size: 12px; font-weight: 700; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; }
+.sec-tab.active { color: #1F3864; border-bottom-color: #1F3864; }
+.sec-tab:hover:not(.active) { color: #444; }
+
+.main { max-width: 700px; margin: 0 auto; padding: 18px 14px 40px; }
+
+.mode-intro { background: #EEF4FF; border: 1px solid #b5d4f4; border-radius: 10px; padding: 13px 16px; margin-bottom: 16px; font-size: 13px; color: #1a3a6b; line-height: 1.6; }
+.mode-intro strong { display: block; font-size: 14px; margin-bottom: 3px; color: #1F3864; }
+
+.card { background: white; border-radius: 12px; border: 1px solid #e0e4ee; margin-bottom: 14px; overflow: hidden; }
+.card-q { padding: 13px 16px 10px; font-size: 15px; font-weight: 700; color: #1F3864; line-height: 1.4; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.tag { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+.tag-v  { background: #EEF4FF; color: #185FA5; }
+.tag-m  { background: #FFF3E0; color: #854F0B; }
+.tag-tf { background: #E8F4E8; color: #3B6D11; }
+.tag-mt { background: #FBEAF0; color: #993556; }
+.tag-sa { background: #FAECE7; color: #993C1D; }
+
+.card-body { padding: 10px 16px 14px; }
+
+.prompt-box { background: #f8faff; border-left: 3px solid #2E75B6; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-bottom: 11px; }
+.prompt-lbl { font-size: 10px; font-weight: 700; color: #2E75B6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.prompt-text { font-size: 13px; color: #2c4a70; font-style: italic; line-height: 1.6; }
+
+.ans-btn { width: 100%; padding: 9px; background: #1F3864; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.ans-btn:hover:not(:disabled) { background: #2E75B6; }
+.ans-btn:disabled { background: #3B6D11; cursor: default; }
+.ans-box { margin-top: 11px; background: #EAF3DE; border: 1px solid #C0DD97; border-radius: 8px; padding: 11px 14px; display: none; }
+.ans-box.show { display: block; }
+.ans-lbl { font-size: 10px; font-weight: 700; color: #3B6D11; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.ans-text { font-size: 15px; font-weight: 700; color: #27500A; }
+.ans-note { font-size: 13px; color: #3B6D11; margin-top: 6px; line-height: 1.6; }
+
+.mark-row { display: flex; gap: 8px; margin-top: 10px; }
+.mark-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+.mk-got { background: #EAF3DE; color: #3B6D11; }
+.mk-got:hover { background: #C0DD97; }
+.mk-rev { background: #FAECE7; color: #993C1D; }
+.mk-rev:hover { background: #F5C4B3; }
+.mk-got.sel { background: #3B6D11; color: white; }
+.mk-rev.sel { background: #993C1D; color: white; }
+
+/* FLASHCARD */
+.flashcard { perspective: 1000px; height: 210px; cursor: pointer; margin-bottom: 10px; }
+.flashcard-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.45s ease; }
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; }
+.fc-front { background: #1F3864; color: white; }
+.fc-front .fc-lbl { font-size: 10px; opacity: 0.55; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.fc-front .fc-q { font-size: 15px; font-weight: 700; line-height: 1.4; }
+.fc-front .fc-hint { font-size: 11px; opacity: 0.45; margin-top: 14px; }
+.fc-back { background: #EAF3DE; border: 2px solid #C0DD97; transform: rotateY(180deg); }
+.fc-back .fc-ans { font-size: 17px; font-weight: 700; color: #27500A; margin-bottom: 7px; }
+.fc-back .fc-note { font-size: 12px; color: #3B6D11; line-height: 1.5; }
+.fc-hint-back { font-size: 11px; color: #639922; margin-top: 10px; opacity: 0.7; }
+
+/* FILL-IN */
+.fill-input { width: 100%; padding: 9px 12px; border: 1.5px solid #cdd2e0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; transition: border-color 0.2s; }
+.fill-input:focus { outline: none; border-color: #2E75B6; }
+.fill-input.correct { border-color: #3B6D11; background: #EAF3DE; }
+.fill-input.wrong { border-color: #993C1D; background: #FAECE7; }
+.fill-check { padding: 8px 16px; background: #1F3864; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.fill-check:hover:not(:disabled) { background: #2E75B6; }
+.fill-check:disabled { background: #888; cursor: default; }
+.fill-feedback { font-size: 13px; margin-top: 7px; line-height: 1.5; display: none; }
+.fill-feedback.show { display: block; }
+.fill-feedback.ok { color: #3B6D11; }
+.fill-feedback.no { color: #993C1D; }
+
+.sec-hdr { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 1.5px solid #e0e4ee; }
+
+.score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.score-cell { background: #f5f6fa; border-radius: 10px; padding: 14px; text-align: center; }
+.score-num { font-size: 28px; font-weight: 700; color: #1F3864; }
+.score-num.g { color: #3B6D11; }
+.score-num.r { color: #993C1D; }
+.score-lbl { font-size: 11px; color: #999; margin-top: 2px; }
+.review-item { background: white; border: 1px solid #f5c4b3; border-left: 4px solid #993C1D; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: #993C1D; font-weight: 600; }
+
+.step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.step-num { background: #1F3864; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.step-text { font-size: 14px; color: #333; line-height: 1.6; }
+.test-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.test-table th { background: #1F3864; color: white; padding: 8px 12px; text-align: left; }
+.test-table td { padding: 8px 12px; border-bottom: 1px solid #f0f3f8; }
+.test-table tr:last-child td { border: none; font-weight: 700; }
+.test-table tr:nth-child(even) td { background: #f8faff; }
+
+.big-btn { width: 100%; padding: 11px; background: #1F3864; color: white; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
+.big-btn:hover { background: #2E75B6; }
+.big-btn.gray { background: #888; }
+.big-btn.gray:hover { background: #666; }
+
+@media (max-width: 480px) { .score-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Ancient China — Study Guide</h1>
+  <p>7th Grade Social Studies &nbsp;·&nbsp; Mr. Slaughter &nbsp;·&nbsp; Pioneer Middle School</p>
+  <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-lbl" id="progLbl">0 of 27 questions marked</div>
+</div>
+
+<div class="mode-bar">
+  <button class="mode-btn active" id="modeGuide" onclick="setMode('guide')">Parent Guide</button>
+  <button class="mode-btn" id="modeFlash" onclick="setMode('flash')">Flashcards</button>
+  <button class="mode-btn" id="modeFill"  onclick="setMode('fill')">Fill in Blank</button>
+</div>
+
+<div class="sec-tabs">
+  <div class="sec-tab active" id="stab-howto"   onclick="setSection('howto')">How to Use</div>
+  <div class="sec-tab"        id="stab-vocab"   onclick="setSection('vocab')">Vocabulary</div>
+  <div class="sec-tab"        id="stab-figures" onclick="setSection('figures')">Key Figures</div>
+  <div class="sec-tab"        id="stab-mc"      onclick="setSection('mc')">Mult. Choice</div>
+  <div class="sec-tab"        id="stab-tf"      onclick="setSection('tf')">True / False</div>
+  <div class="sec-tab"        id="stab-sa"      onclick="setSection('sa')">Short Answer</div>
+  <div class="sec-tab"        id="stab-score"   onclick="setSection('score')">Score</div>
+</div>
+
+<div class="main">
+
+<!-- HOW TO USE -->
+<div id="sec-howto">
+  <div class="mode-intro">
+    <strong>Welcome, Parents!</strong>
+    This guide covers everything on your child's Ancient China test. No prior knowledge needed — just follow the prompts on each card. Progress saves automatically to this device.
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div style="font-size:14px;font-weight:700;color:#1F3864;margin-bottom:12px;">Step by step</div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Pick a mode</strong> at the top — Parent Guide reads prompts to you, Flashcards flip to reveal, Fill in Blank lets them type.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Pick a section</strong> — start with Vocabulary, then Key Figures, then continue in order.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Work each card</strong> — ask the question, wait for an answer, then reveal it together.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Mark it</strong> — "Got It!" or "Need to Review." Check the Score tab when done.</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-q">What's on the test?</div>
+    <div class="card-body">
+      <table class="test-table">
+        <tr><th>Section</th><th>Questions</th><th>Points</th></tr>
+        <tr><td>Multiple Choice</td><td>9 questions</td><td>18 pts</td></tr>
+        <tr><td>True or False</td><td>7 statements</td><td>14 pts</td></tr>
+        <tr><td>Matching (Key Figures)</td><td>4 people</td><td>8 pts</td></tr>
+        <tr><td>Short Answer</td><td>1 paragraph</td><td>8 pts</td></tr>
+        <tr><td>Total</td><td></td><td>48 pts</td></tr>
+      </table>
+    </div>
+  </div>
+  <button class="big-btn" onclick="setSection('vocab')">Start Studying — Vocabulary →</button>
+</div>
+
+<!-- VOCABULARY -->
+<div id="sec-vocab" style="display:none">
+  <div id="mi-vocab" class="mode-intro"></div>
+  <div class="sec-hdr">Government &amp; Society</div>
+  <div class="card"><div class="card-q">What is a dynasty? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v1"></div></div>
+  <div class="card"><div class="card-q">What is the Mandate of Heaven? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v2"></div></div>
+  <div class="card"><div class="card-q">What is standardization? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v3"></div></div>
+  <div class="card"><div class="card-q">What is a monopoly? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v4"></div></div>
+  <div class="card"><div class="card-q">What is filial piety? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v5"></div></div>
+  <div class="sec-hdr">Philosophy &amp; Religion</div>
+  <div class="card"><div class="card-q">What is Confucianism? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v6"></div></div>
+  <div class="card"><div class="card-q">What is Daoism? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v7"></div></div>
+  <div class="card"><div class="card-q">What were Oracle Bones? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v8"></div></div>
+  <div class="card"><div class="card-q">What major religion spread through trade in China? <span class="tag tag-v">Vocab</span></div><div class="card-body" id="body-v9"></div></div>
+</div>
+
+<!-- KEY FIGURES -->
+<div id="sec-figures" style="display:none">
+  <div id="mi-figures" class="mode-intro"></div>
+  <div class="card"><div class="card-q">Who founded Daoism? <span class="tag tag-mt">Matching</span></div><div class="card-body" id="body-f1"></div></div>
+  <div class="card"><div class="card-q">Who wrote The Art of War? <span class="tag tag-mt">Matching</span></div><div class="card-body" id="body-f2"></div></div>
+  <div class="card"><div class="card-q">Who united China and began the Great Wall? <span class="tag tag-mt">Matching</span></div><div class="card-body" id="body-f3"></div></div>
+
+</div>
+
+<!-- MULTIPLE CHOICE -->
+<div id="sec-mc" style="display:none">
+  <div id="mi-mc" class="mode-intro"></div>
+  <div class="card"><div class="card-q">China's early governments were run by a ________, or "ruling family." <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m1"></div></div>
+  <div class="card"><div class="card-q">The most important spirits to ancient Chinese were those of whom? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m2"></div></div>
+  <div class="card"><div class="card-q">Which philosophy is centered around 5 key relationships? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m3"></div></div>
+  <div class="card"><div class="card-q">Which philosophy emphasizes Yin and Yang and a simple, natural life? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m4"></div></div>
+  <div class="card"><div class="card-q">The Qin ruler declared himself the first __________. <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m5"></div></div>
+  <div class="card"><div class="card-q">What is standardization? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m6"></div></div>
+  <div class="card"><div class="card-q">Which Confucian relationship was considered most important? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m7"></div></div>
+  <div class="card"><div class="card-q">Which religion was spread through trade in China? <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m8"></div></div>
+  <div class="card"><div class="card-q">The devotion of children to their parents is called… <span class="tag tag-m">MC</span></div><div class="card-body" id="body-m9"></div></div>
+</div>
+
+<!-- TRUE / FALSE -->
+<div id="sec-tf" style="display:none">
+  <div id="mi-tf" class="mode-intro"></div>
+  <div class="card"><div class="card-q">The earliest written records from China were Oracle Bones from the Shang dynasty. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t1"></div></div>
+  <div class="card"><div class="card-q">The Zhou rejected many aspects of Shang culture. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t2"></div></div>
+  <div class="card"><div class="card-q">China's physical barriers led to China largely living in isolation. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t3"></div></div>
+  <div class="card"><div class="card-q">According to Daoism, a strong leader and legal system create social order. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t4"></div></div>
+  <div class="card"><div class="card-q">The Mandate of Heaven was the belief that Heaven supported a ruler's right to rule. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t5"></div></div>
+  <div class="card"><div class="card-q">A monopoly is when several groups work together to control a good or service. <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t6"></div></div>
+  <div class="card"><div class="card-q">A set of beliefs about how the world works and how one should live is called a "philosophy." <span class="tag tag-tf">T/F</span></div><div class="card-body" id="body-t7"></div></div>
+</div>
+
+<!-- SHORT ANSWER -->
+<div id="sec-sa" style="display:none">
+  <div class="mode-intro">
+    <strong>Short Answer Prep</strong>
+    The prompt: "List and describe ONE achievement from ONE dynasty. Include: what it is, which dynasty, what it was used for, and why it matters today." Use these cards to help your child plan.
+  </div>
+  <div class="card"><div class="card-q">Shang Dynasty — Oracle Bones <span class="tag tag-sa">Written</span></div><div class="card-body" id="body-s1"></div></div>
+  <div class="card"><div class="card-q">Qin Dynasty — The Great Wall <span class="tag tag-sa">Written</span></div><div class="card-body" id="body-s2"></div></div>
+
+  <div class="card">
+    <div class="card-q">Writing reminders for the test</div>
+    <div class="card-body" style="font-size:13px;line-height:1.9;color:#333;">
+      ✅ Use <strong>complete sentences</strong> — no bullet points on the test.<br>
+      ✅ Name the <strong>dynasty</strong> clearly.<br>
+      ✅ Hit all four points: achievement, dynasty, purpose, importance today.<br>
+      ✅ Aim for at least 4 sentences.
+    </div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div id="sec-score" style="display:none">
+  <div class="mode-intro">
+    <strong>Study Session Summary</strong>
+    Progress is saved to this device automatically. Come back anytime to pick up where you left off.
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="score-grid">
+        <div class="score-cell"><div class="score-num" id="sc-total">0</div><div class="score-lbl">Marked</div></div>
+        <div class="score-cell"><div class="score-num g" id="sc-got">0</div><div class="score-lbl">Got it!</div></div>
+        <div class="score-cell"><div class="score-num r" id="sc-rev">0</div><div class="score-lbl">Need review</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="review-section" style="display:none">
+    <div class="sec-hdr">Needs more practice</div>
+    <div id="review-list"></div>
+  </div>
+  <div id="all-clear" style="display:none;background:#EAF3DE;border-radius:10px;padding:14px;text-align:center;font-size:14px;color:#3B6D11;font-weight:700;margin-bottom:14px;">
+    All marked cards are looking great!
+  </div>
+  <button class="big-btn gray" onclick="confirmReset()">Reset All Progress</button>
+  <div style="font-size:12px;color:#999;text-align:center;margin-top:10px;">Also review on <strong>Oodlu.org</strong> — the game-based review site used in class!</div>
+</div>
+
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const CARDS = {
+  v1:{ q:'What is a dynasty?',                                    prompt:"\"China's early governments were run by a ________, or 'ruling family.' What's the word?\"",  answer:'Dynasty',                         note:'A ruling family that controls a country for many generations. China had several dynasties, including the Shang, Zhou, and Qin.', fill:['dynasty'] },
+  v2:{ q:'What is the Mandate of Heaven?',                        prompt:'"Chinese rulers believed Heaven gave them permission to rule. What was this belief called?"',   answer:'The Mandate of Heaven',           note:"If a ruler was unjust, Heaven would take away the mandate — shown through floods, famine, or revolt.", fill:['mandate of heaven','mandate'] },
+  v3:{ q:'What is standardization?',                              prompt:'"The Qin dynasty made everyone use the same writing, money, and measurements. What is this process called?"', answer:'Standardization', note:'Making things uniform across a region so everyone does things the same way.', fill:['standardization'] },
+  v4:{ q:'What is a monopoly?',                                   prompt:'"If ONE group controls all of the silk trade so no one else can sell it, what is that called?"', answer:'A Monopoly', note:'ONE group controlling production — not several groups working together. Watch out — the test has a tricky T/F on this!', fill:['monopoly','a monopoly'] },
+  v5:{ q:'What is filial piety?',                                 prompt:'"In ancient China, children were expected to deeply respect and care for their parents. What is this devotion called?"', answer:'Filial Piety', note:'"Filial" means "of children." Central to Confucianism — and the most important relationship.', fill:['filial piety'] },
+  v6:{ q:'What is Confucianism?',                                 prompt:'"Which philosophy is centered around 5 key relationships? Can you name at least two?"', answer:'Confucianism', note:'5 relationships: Ruler & Subject, Parent & Child (most important!), Husband & Wife, Elder & Younger Sibling, Friend & Friend.', fill:['confucianism'] },
+  v7:{ q:'What is Daoism?',                                       prompt:'"Which philosophy teaches living simply and naturally, focused on Yin and Yang — balance between good and evil?"', answer:'Daoism (Taoism)', note:"Daoism does NOT emphasize strong rulers or laws — that's Legalism. A common trick question!", fill:['daoism','taoism'] },
+  v8:{ q:'What were Oracle Bones?',                               prompt:'"The earliest written records from China came from which dynasty, and what were they written on?"', answer:'Oracle Bones — Shang Dynasty', note:"Animal bones or turtle shells used by Shang priests to ask ancestor spirits questions. China's earliest writing.", fill:['oracle bones'] },
+  v9:{ q:'What major religion spread through trade in China?',    prompt:'"A major world religion was brought into China through the Silk Road trade routes. Which one?"', answer:'Buddhism', note:'Buddhism spread from India into China along the Silk Road trade routes.', fill:['buddhism'] },
+  f1:{ q:'Who founded Daoism?',                                   prompt:'"According to legend, which person is the founder of Daoism?"', answer:'Laozi', note:'Credited with writing the Tao Te Ching. "According to legend" is key — historians debate if he was a real person.', fill:['laozi','lao tzu','lao-tzu'] },
+  f2:{ q:'Who wrote The Art of War?',                             prompt:'"This man wrote a famous book on military strategy called The Art of War. Who was he?"', answer:'Sun Tzu', note:'Still studied today by military leaders and business executives worldwide!', fill:['sun tzu'] },
+  f3:{ q:'Who united China and began the Great Wall?',            prompt:'"This ruler united China, declared himself the first Emperor, and began building the Great Wall. Who?"', answer:'Shi Huangdi', note:'"Shi Huangdi" means "First Emperor." He also standardized writing, currency, and weights across China.', fill:['shi huangdi','shi huang di'] },
+  m1:{ q:'China\'s early governments were run by a ________, or "ruling family."', prompt:'Read choices: A) Oligarchy  B) Dynasty  C) Parliament  D) Council', answer:'B) Dynasty', note:'', fill:['dynasty','b','b) dynasty'] },
+  m2:{ q:'The most important spirits to ancient Chinese were those of whom?', prompt:'Read choices: A) Nature gods  B) Ancestors  C) Emperors  D) Warriors', answer:'B) Ancestors', note:'Ancestor worship — they believed deceased family spirits could influence the living world.', fill:['ancestors','b','b) ancestors'] },
+  m3:{ q:'Which philosophy is centered around 5 key relationships?', prompt:'Read choices: A) Daoism  B) Legalism  C) Buddhism  D) Confucianism', answer:'D) Confucianism', note:'', fill:['confucianism','d','d) confucianism'] },
+  m4:{ q:'Which philosophy emphasizes Yin and Yang and a simple, natural life?', prompt:'Read choices: A) Confucianism  B) Daoism  C) Legalism  D) Buddhism', answer:'B) Daoism', note:'', fill:['daoism','b','b) daoism'] },
+  m5:{ q:'The Qin ruler declared himself the first __________.', prompt:'Read choices: A) Pharaoh  B) Sultan  C) Emperor  D) Chancellor', answer:'C) Emperor', note:'"Shi Huangdi" literally means "First Emperor" — he invented the title himself.', fill:['emperor','c','c) emperor'] },
+  m6:{ q:'What is standardization?', prompt:'Read choices: A) Making all laws equal  B) Making things uniform across a region  C) Setting prices  D) Dividing land equally', answer:'B) Making things uniform across a region', note:'', fill:['b','making things uniform','making things uniform across a region'] },
+  m7:{ q:'Which Confucian relationship was considered most important?', prompt:'Read choices: A) Friend and Friend  B) Husband and Wife  C) Parent and Child  D) Ruler and Subject', answer:'C) Parent and Child', note:'Connects directly to filial piety — the foundation of all other Confucian relationships.', fill:['parent and child','c','c) parent and child'] },
+  m8:{ q:'Which religion was spread through trade in China?', prompt:'Read choices: A) Christianity  B) Islam  C) Hinduism  D) Buddhism', answer:'D) Buddhism', note:'', fill:['buddhism','d','d) buddhism'] },
+  m9:{ q:'The devotion of children to their parents is called…', prompt:'Read choices: A) Ancestor Worship  B) Filial Piety  C) Mandate of Heaven  D) Standardization', answer:'B) Filial Piety', note:'', fill:['filial piety','b','b) filial piety'] },
+  t1:{ q:'Oracle Bones — Shang dynasty (True or False)', prompt:'"True or False: The earliest written records from China were Oracle Bones from the Shang dynasty."', answer:'TRUE', note:'', fill:['true'] },
+  t2:{ q:'Zhou rejected Shang culture (True or False)', prompt:'"True or False: The Zhou rejected many aspects of Shang culture."', answer:'FALSE', note:'The Zhou actually kept many Shang traditions — ancestor worship, oracle bones — even after overthrowing them.', fill:['false'] },
+  t3:{ q:'Geographic isolation (True or False)', prompt:'"True or False: China\'s physical barriers (Taklimakan, Gobi deserts, Himalayas) led to China living in isolation."', answer:'TRUE', note:'These barriers made invasion and travel very difficult, letting Chinese civilization develop independently.', fill:['true'] },
+  t4:{ q:'Daoism and strong legal system (True or False) ⚠', prompt:'"True or False: According to Daoism, a strong leader and legal system are needed for social order."', answer:'FALSE — this describes Legalism!', note:'Daoism = live naturally, go with the flow. Legalism = strict laws and strong government. One of the trickiest questions on the test!', fill:['false'] },
+  t5:{ q:'Mandate of Heaven (True or False)', prompt:'"True or False: The Mandate of Heaven was the belief that Heaven supported a ruler\'s right to rule."', answer:'TRUE', note:'', fill:['true'] },
+  t6:{ q:'Monopoly definition (True or False) ⚠', prompt:'"True or False: A monopoly is when several groups work together to control a good or service."', answer:'FALSE', note:'A monopoly = ONE group in control, not several. Another tricky one!', fill:['false'] },
+  t7:{ q:'Definition of philosophy (True or False)', prompt:'"True or False: A set of beliefs about how the world works and how to live is called a philosophy."', answer:'TRUE', note:'', fill:['true'] },
+  s1:{ q:'Shang Dynasty — Oracle Bones', prompt:'"What were Oracle Bones, what were they used for, and why do they matter today?"', answer:'Shang Dynasty — Oracle Bones', note:'<strong>What:</strong> Animal bones/turtle shells used to communicate with ancestor spirits.<br><strong>Dynasty:</strong> Shang<br><strong>Used for:</strong> Asking spiritual questions, predicting the future, guiding war and harvest decisions.<br><strong>Importance today:</strong> China\'s oldest written records; gave historians insight into early Chinese beliefs and language.', fill:['oracle bones'] },
+  s2:{ q:'Qin Dynasty — The Great Wall', prompt:'"Tell me about the Great Wall — which dynasty started it, why they built it, and why it matters today."', answer:'Qin Dynasty — The Great Wall', note:'<strong>What:</strong> A massive wall stretching across northern China.<br><strong>Dynasty:</strong> Qin (Shi Huangdi)<br><strong>Used for:</strong> Defense against northern invaders.<br><strong>Importance today:</strong> One of the most famous landmarks in the world; millions of tourists visit each year.', fill:['great wall'] }
+};
+
+const LABELS = {
+  v1:'Dynasty', v2:'Mandate of Heaven', v3:'Standardization', v4:'Monopoly', v5:'Filial Piety',
+  v6:'Confucianism', v7:'Daoism', v8:'Oracle Bones', v9:'Buddhism in China',
+  f1:'Laozi', f2:'Sun Tzu', f3:'Shi Huangdi',
+  m1:'MC: Dynasty/ruling family', m2:'MC: Most important spirits', m3:'MC: 5 relationships philosophy',
+  m4:'MC: Yin and Yang philosophy', m5:'MC: First Emperor title', m6:'MC: Standardization definition',
+  m7:'MC: Most important relationship', m8:'MC: Religion spread by trade', m9:'MC: Filial piety definition',
+  t1:'T/F: Oracle Bones (Shang)', t2:'T/F: Zhou kept Shang culture ⚠', t3:'T/F: Geographic isolation',
+  t4:'T/F: Daoism vs Legalism ⚠', t5:'T/F: Mandate of Heaven', t6:'T/F: Monopoly definition ⚠', t7:'T/F: Definition of philosophy',
+  s1:'Short Answer: Oracle Bones', s2:'Short Answer: Great Wall'
+};
+
+const TOTAL = Object.keys(CARDS).length;
+const LS_KEY = 'ancientChina_v2';
+let state = {};      // id -> 'got'|'review'
+let revealed = {};   // id -> true
+let mode = 'guide';
+let section = 'howto';
+
+// ─── LOCALSTORAGE ──────────────────────────────────────────────────────────────
+function load() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) { const s = JSON.parse(raw); state = s.state || {}; revealed = s.revealed || {}; }
+  } catch(e) {}
+}
+function save() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ state, revealed })); } catch(e) {}
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────────
+function renderCard(id) {
+  const d = CARDS[id];
+  const el = document.getElementById('body-' + id);
+  if (!d || !el) return;
+  const done = !!revealed[id];
+  const mk = state[id] || null;
+
+  if (mode === 'flash') {
+    el.innerHTML =
+      '<div class="flashcard' + (done ? ' flipped' : '') + '" onclick="flip(\'' + id + '\')">' +
+        '<div class="flashcard-inner">' +
+          '<div class="fc-front">' +
+            '<div class="fc-lbl">' + LABELS[id] + '</div>' +
+            '<div class="fc-q">' + d.q + '</div>' +
+            '<div class="fc-hint">Tap to reveal answer</div>' +
+          '</div>' +
+          '<div class="fc-back">' +
+            '<div class="fc-ans">' + d.answer + '</div>' +
+            (d.note ? '<div class="fc-note">' + d.note + '</div>' : '') +
+            '<div class="fc-hint-back">Tap to flip back</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      markRow(id, mk);
+  } else if (mode === 'fill') {
+    el.innerHTML =
+      '<input class="fill-input' + (done ? ' correct' : '') + '" id="fi-' + id + '" type="text" placeholder="Type your answer…"' + (done ? ' disabled value="' + d.answer + '"' : '') + ' onkeydown="if(event.key===\'Enter\')checkFill(\'' + id + '\')">' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<button class="fill-check" onclick="checkFill(\'' + id + '\')"' + (done ? ' disabled' : '') + '>Check</button>' +
+        (!done ? '<span style="font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline;" onclick="skipFill(\'' + id + '\')">Show answer</span>' : '') +
+      '</div>' +
+      '<div class="fill-feedback' + (done ? ' show ok' : '') + '" id="ff-' + id + '">' +
+        (done ? '&#10003; ' + d.answer + (d.note ? '<br><span style="font-size:12px">' + d.note + '</span>' : '') : '') +
+      '</div>' +
+      (done ? markRow(id, mk) : '');
+  } else {
+    el.innerHTML =
+      '<div class="prompt-box">' +
+        '<div class="prompt-lbl">Say this to your child</div>' +
+        '<div class="prompt-text">' + d.prompt + '</div>' +
+      '</div>' +
+      '<button class="ans-btn" id="ab-' + id + '" onclick="revealGuide(\'' + id + '\')"' + (done ? ' disabled' : '') + '>' + (done ? 'Answer shown' : 'Show Answer') + '</button>' +
+      '<div class="ans-box' + (done ? ' show' : '') + '" id="abx-' + id + '">' +
+        '<div class="ans-lbl">Answer</div>' +
+        '<div class="ans-text">' + d.answer + '</div>' +
+        (d.note ? '<div class="ans-note">' + d.note + '</div>' : '') +
+      '</div>' +
+      markRow(id, mk);
+  }
+}
+
+function markRow(id, mk) {
+  return '<div class="mark-row">' +
+    '<button class="mark-btn mk-got' + (mk === 'got' ? ' sel' : '') + '" onclick="mark(\'' + id + '\',\'got\')">Got it!</button>' +
+    '<button class="mark-btn mk-rev' + (mk === 'review' ? ' sel' : '') + '" onclick="mark(\'' + id + '\',\'review\')">Need to review</button>' +
+  '</div>';
+}
+
+function renderAll() { Object.keys(CARDS).forEach(id => renderCard(id)); }
+
+// ─── ACTIONS ───────────────────────────────────────────────────────────────────
+function flip(id) {
+  const fc = document.querySelector('#body-' + id + ' .flashcard');
+  if (!fc) return;
+  const isFlipping = !fc.classList.contains('flipped');
+  fc.classList.toggle('flipped');
+  if (isFlipping) { revealed[id] = true; save(); }
+}
+
+function revealGuide(id) {
+  revealed[id] = true; save();
+  const btn = document.getElementById('ab-' + id);
+  const box = document.getElementById('abx-' + id);
+  if (btn) { btn.disabled = true; btn.textContent = 'Answer shown'; }
+  if (box) box.classList.add('show');
+}
+
+function checkFill(id) {
+  const inp = document.getElementById('fi-' + id);
+  if (!inp || inp.disabled) return;
+  const val = inp.value.trim().toLowerCase();
+  const ok = CARDS[id].fill.some(a => val === a.toLowerCase() || val.includes(a.toLowerCase()));
+  const fb = document.getElementById('ff-' + id);
+  if (ok) {
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+    revealed[id] = true; save();
+    if (fb) { fb.innerHTML = '&#10003; ' + CARDS[id].answer + (CARDS[id].note ? '<br><span style="font-size:12px">' + CARDS[id].note + '</span>' : ''); fb.className = 'fill-feedback show ok'; }
+    inp.disabled = true;
+    const cb = inp.closest('.card-body');
+    const checkBtn = cb.querySelector('.fill-check'); if (checkBtn) checkBtn.disabled = true;
+    const skip = cb.querySelector('[onclick^="skipFill"]'); if (skip) skip.remove();
+    if (!cb.querySelector('.mark-row')) { const tmp = document.createElement('div'); tmp.innerHTML = markRow(id, state[id]||null); cb.appendChild(tmp.firstElementChild); }
+  } else {
+    inp.classList.add('wrong');
+    if (fb) { fb.textContent = 'Not quite — try again!'; fb.className = 'fill-feedback show no'; }
+    setTimeout(() => { inp.classList.remove('wrong'); if (fb && fb.textContent === 'Not quite — try again!') fb.className = 'fill-feedback'; }, 1400);
+  }
+}
+
+function skipFill(id) { revealed[id] = true; save(); renderCard(id); }
+
+function mark(id, type) {
+  state[id] = type; save(); updateProgress();
+  const row = document.querySelector('#body-' + id + ' .mark-row');
+  if (row) row.outerHTML = markRow(id, type);
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const total_marked = Object.keys(state).length;
+  const got = Object.values(state).filter(v => v === 'got').length;
+  const rev = Object.values(state).filter(v => v === 'review').length;
+  const pct = Math.round((total_marked / TOTAL) * 100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLbl').textContent = total_marked + ' of 27 questions marked';
+  document.getElementById('sc-total').textContent = total_marked;
+  document.getElementById('sc-got').textContent = got;
+  document.getElementById('sc-rev').textContent = rev;
+  const needs = Object.entries(state).filter(([,v]) => v === 'review');
+  const rs = document.getElementById('review-section');
+  const ac = document.getElementById('all-clear');
+  if (total_marked === 0) { rs.style.display = 'none'; ac.style.display = 'none'; }
+  else if (needs.length > 0) {
+    rs.style.display = 'block'; ac.style.display = 'none';
+    document.getElementById('review-list').innerHTML = needs.map(([k]) => '<div class="review-item">&#9888; ' + LABELS[k] + '</div>').join('');
+  } else { rs.style.display = 'none'; ac.style.display = 'block'; }
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function confirmReset() {
+  if (!confirm('Reset ALL progress? This clears your saved data and cannot be undone.')) return;
+  state = {};
+  revealed = {};
+  localStorage.removeItem(LS_KEY);
+  renderAll();
+  updateProgress();
+  document.getElementById('review-section').style.display = 'none';
+  document.getElementById('all-clear').style.display = 'none';
+}
+
+// ─── MODE / SECTION ───────────────────────────────────────────────────────────
+const MODE_INTRO = {
+  guide: '<strong>Parent Guide Mode</strong> Read the blue prompt to your child and wait for their answer before tapping "Show Answer."',
+  flash: '<strong>Flashcard Mode</strong> Tap a card to flip it. Question on front, answer on back. Mark how they did.',
+  fill:  '<strong>Fill in the Blank Mode</strong> Your child types their answer and checks it instantly. Not case-sensitive.'
+};
+const SECS = ['howto','vocab','figures','mc','tf','sa','score'];
+
+function setMode(m) {
+  mode = m;
+  ['guide','flash','fill'].forEach(x => document.getElementById('mode' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('active', x === m));
+  renderAll();
+  ['vocab','figures','mc','tf','sa'].forEach(s => { const el = document.getElementById('mi-' + s); if (el) el.innerHTML = MODE_INTRO[m]; });
+}
+
+function setSection(s) {
+  section = s;
+  SECS.forEach(x => {
+    document.getElementById('sec-' + x).style.display = x === s ? '' : 'none';
+    document.getElementById('stab-' + x).classList.toggle('active', x === s);
+  });
+  ['vocab','figures','mc','tf','sa'].forEach(x => { const el = document.getElementById('mi-' + x); if (el) el.innerHTML = MODE_INTRO[mode]; });
+  window.scrollTo(0, 0);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+load();
+renderAll();
+updateProgress();
+SECS.forEach(s => { document.getElementById('sec-' + s).style.display = s === 'howto' ? '' : 'none'; });
+</script>
+<div style="text-align:center;padding:18px 16px 24px;font-size:11px;color:#aaa;">
+  &copy; 2026 Jason Slaughter &nbsp;·&nbsp; PixelED Path, LLC &nbsp;·&nbsp; All rights reserved.
+</div>
+
+</body>
+</html>
